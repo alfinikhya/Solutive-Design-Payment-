@@ -1,0 +1,6 @@
+{
+  "name": "Solutive Design Studio Payment",
+  "description": "Mobile-only digital payment landing page for professional design services by Solutive Design Studio.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
