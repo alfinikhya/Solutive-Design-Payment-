@@ -57,11 +57,7 @@ export function MobileFrame({ children, activeWeatherMode, weatherOption, setWea
       {/* Main Container Wrapper */}
       <div className="relative w-full max-w-md md:h-[840px] md:w-[385px] bg-white md:rounded-[48px] md:shadow-[0_25px_60px_-15px_rgba(15,23,42,0.15)] md:border-[10px] md:border-slate-900 flex flex-col overflow-hidden transition-all duration-300">
         
-        {/* Notch / Dynamic Screen Top Bezels (Only Visible on Desktop Mockup Layout) */}
-        <div className="hidden md:block absolute top-0 left-1/2 -translate-x-1/2 w-40 h-[30px] bg-slate-900 rounded-b-2xl z-50">
-          <div className="absolute top-2 left-1/2 -translate-x-1/2 w-16 h-1 bg-slate-800 rounded-full" />
-          <div className="absolute top-1.5 right-6 w-2.5 h-2.5 bg-slate-950 rounded-full border border-slate-800" />
-        </div>
+        {/* Notch / Dynamic Screen Top Bezels (Removed to prevent overlap with status bar) */}
 
         {/* Brand Label/Credit on Large Screens (Left Column) */}
         <div className="hidden xl:flex absolute -left-72 top-10 flex-col gap-2.5 w-64 text-left pointer-events-none">

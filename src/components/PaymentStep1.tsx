@@ -4,6 +4,7 @@ import { CreditCard, Wallet, ArrowRight, ClipboardList, Info, Sparkles, ReceiptT
 import { PaymentMethodType, ClientInvoice } from '../types';
 import { TypewriterText } from './TypewriterText';
 import { PaymentStep2 } from './PaymentStep2';
+import { gsap } from 'gsap';
 
 interface PaymentStep1Props {
   invoice: ClientInvoice;
@@ -41,6 +42,43 @@ export function PaymentStep1({
       setTempPaymentType(invoice.paymentType || 'LUNAS');
     }
   }, [isEditingInvoice, invoice]);
+
+  // Smooth scroll and viewport focus using GSAP for that elite interactive look and feel
+  React.useEffect(() => {
+    if (!activeMethod) return;
+
+    // Timeout to wait for the card state toggling to begin rendering the expanding container
+    const ctx = gsap.context(() => {
+      let targetId = '';
+      if (activeMethod === PaymentMethodType.BRI) targetId = 'payment-card-bri';
+      else if (activeMethod === PaymentMethodType.SEABANK) targetId = 'payment-card-seabank';
+      else if (activeMethod === PaymentMethodType.DANA) targetId = 'payment-card-dana';
+
+      const cardElement = document.getElementById(targetId);
+      if (cardElement) {
+        // Find nearest scrollable parent (.overflow-y-auto)
+        const scrollContainer = cardElement.closest('.overflow-y-auto') as HTMLElement;
+        if (scrollContainer) {
+          const containerRect = scrollContainer.getBoundingClientRect();
+          const cardRect = cardElement.getBoundingClientRect();
+
+          // Calculate offset to place the card beautifully in the middle-top of the mobile phone screen
+          const relativeTop = cardRect.top - containerRect.top;
+          const targetScrollTop = scrollContainer.scrollTop + relativeTop - 12;
+
+          // Perform elite smooth GSAP scroll animation with a high-end spring-like curve
+          gsap.to(scrollContainer, {
+            scrollTop: targetScrollTop,
+            duration: 0.85,
+            ease: "power4.out",
+            overwrite: "auto",
+          });
+        }
+      }
+    });
+
+    return () => ctx.revert();
+  }, [activeMethod]);
 
   const formatRupiah = (num: number) => {
     return new Intl.NumberFormat('id-ID', {
@@ -325,11 +363,15 @@ export function PaymentStep1({
         <AnimatePresence initial={false}>
           {activeMethod === PaymentMethodType.BRI && (
             <motion.div
-              initial={{ height: 0, opacity: 0 }}
-              animate={{ height: 'auto', opacity: 1 }}
-              exit={{ height: 0, opacity: 0 }}
-              transition={{ duration: 0.25, ease: 'easeInOut' }}
-              className="overflow-hidden"
+              initial={{ height: 0, opacity: 0, y: -10 }}
+              animate={{ height: 'auto', opacity: 1, y: 0 }}
+              exit={{ height: 0, opacity: 0, y: -10 }}
+              transition={{
+                height: { type: 'spring', stiffness: 220, damping: 25, mass: 0.9 },
+                opacity: { duration: 0.35, ease: 'easeOut' },
+                y: { type: 'spring', stiffness: 200, damping: 22 }
+              }}
+              className="overflow-hidden origin-top"
             >
               <PaymentStep2
                 methodType={PaymentMethodType.BRI}
@@ -402,11 +444,15 @@ export function PaymentStep1({
         <AnimatePresence initial={false}>
           {activeMethod === PaymentMethodType.SEABANK && (
             <motion.div
-              initial={{ height: 0, opacity: 0 }}
-              animate={{ height: 'auto', opacity: 1 }}
-              exit={{ height: 0, opacity: 0 }}
-              transition={{ duration: 0.25, ease: 'easeInOut' }}
-              className="overflow-hidden"
+              initial={{ height: 0, opacity: 0, y: -10 }}
+              animate={{ height: 'auto', opacity: 1, y: 0 }}
+              exit={{ height: 0, opacity: 0, y: -10 }}
+              transition={{
+                height: { type: 'spring', stiffness: 220, damping: 25, mass: 0.9 },
+                opacity: { duration: 0.35, ease: 'easeOut' },
+                y: { type: 'spring', stiffness: 200, damping: 22 }
+              }}
+              className="overflow-hidden origin-top"
             >
               <PaymentStep2
                 methodType={PaymentMethodType.SEABANK}
@@ -479,11 +525,15 @@ export function PaymentStep1({
         <AnimatePresence initial={false}>
           {activeMethod === PaymentMethodType.DANA && (
             <motion.div
-              initial={{ height: 0, opacity: 0 }}
-              animate={{ height: 'auto', opacity: 1 }}
-              exit={{ height: 0, opacity: 0 }}
-              transition={{ duration: 0.25, ease: 'easeInOut' }}
-              className="overflow-hidden"
+              initial={{ height: 0, opacity: 0, y: -10 }}
+              animate={{ height: 'auto', opacity: 1, y: 0 }}
+              exit={{ height: 0, opacity: 0, y: -10 }}
+              transition={{
+                height: { type: 'spring', stiffness: 220, damping: 25, mass: 0.9 },
+                opacity: { duration: 0.35, ease: 'easeOut' },
+                y: { type: 'spring', stiffness: 200, damping: 22 }
+              }}
+              className="overflow-hidden origin-top"
             >
               <PaymentStep2
                 methodType={PaymentMethodType.DANA}
