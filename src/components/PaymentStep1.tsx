@@ -367,9 +367,9 @@ export function PaymentStep1({
               animate={{ height: 'auto', opacity: 1, y: 0 }}
               exit={{ height: 0, opacity: 0, y: -10 }}
               transition={{
-                height: { duration: 0.4, ease: [0.25, 1, 0.5, 1] },
-                opacity: { duration: 0.3, ease: 'easeOut' },
-                y: { duration: 0.4, ease: [0.25, 1, 0.5, 1] }
+                height: { type: 'spring', stiffness: 220, damping: 25, mass: 0.9 },
+                opacity: { duration: 0.35, ease: 'easeOut' },
+                y: { type: 'spring', stiffness: 200, damping: 22 }
               }}
               className="overflow-hidden origin-top"
             >
@@ -448,9 +448,9 @@ export function PaymentStep1({
               animate={{ height: 'auto', opacity: 1, y: 0 }}
               exit={{ height: 0, opacity: 0, y: -10 }}
               transition={{
-                height: { duration: 0.4, ease: [0.25, 1, 0.5, 1] },
-                opacity: { duration: 0.3, ease: 'easeOut' },
-                y: { duration: 0.4, ease: [0.25, 1, 0.5, 1] }
+                height: { type: 'spring', stiffness: 220, damping: 25, mass: 0.9 },
+                opacity: { duration: 0.35, ease: 'easeOut' },
+                y: { type: 'spring', stiffness: 200, damping: 22 }
               }}
               className="overflow-hidden origin-top"
             >
@@ -529,9 +529,9 @@ export function PaymentStep1({
               animate={{ height: 'auto', opacity: 1, y: 0 }}
               exit={{ height: 0, opacity: 0, y: -10 }}
               transition={{
-                height: { duration: 0.4, ease: [0.25, 1, 0.5, 1] },
-                opacity: { duration: 0.3, ease: 'easeOut' },
-                y: { duration: 0.4, ease: [0.25, 1, 0.5, 1] }
+                height: { type: 'spring', stiffness: 220, damping: 25, mass: 0.9 },
+                opacity: { duration: 0.35, ease: 'easeOut' },
+                y: { type: 'spring', stiffness: 200, damping: 22 }
               }}
               className="overflow-hidden origin-top"
             >
