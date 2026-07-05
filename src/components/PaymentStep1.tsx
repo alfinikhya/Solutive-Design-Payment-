@@ -56,8 +56,8 @@ export function PaymentStep1({
 
       const cardElement = document.getElementById(targetId);
       if (cardElement) {
-        // Find nearest scrollable parent (.native-app-scroll or .overflow-y-auto)
-        const scrollContainer = (cardElement.closest('.native-app-scroll') || cardElement.closest('.overflow-y-auto')) as HTMLElement;
+        // Find nearest scrollable parent (.overflow-y-auto)
+        const scrollContainer = cardElement.closest('.overflow-y-auto') as HTMLElement;
         if (scrollContainer) {
           const containerRect = scrollContainer.getBoundingClientRect();
           const cardRect = cardElement.getBoundingClientRect();

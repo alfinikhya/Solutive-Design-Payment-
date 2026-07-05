@@ -49,13 +49,13 @@ export function MobileFrame({ children, activeWeatherMode, weatherOption, setWea
   };
 
   return (
-    <div className="h-screen w-full bg-[#F1F5F9] flex items-center justify-center p-0 md:p-6 overflow-hidden selection:bg-blue-600 selection:text-white relative">
+    <div className="min-h-screen w-full bg-[#F1F5F9] flex items-center justify-center p-0 md:p-6 overflow-x-hidden selection:bg-blue-600 selection:text-white relative">
       {/* Background Decorative Elements */}
       <div className="absolute top-[-100px] left-[-100px] w-96 h-96 bg-blue-100/80 rounded-full mix-blend-multiply filter blur-3xl opacity-75 pointer-events-none" />
       <div className="absolute bottom-[-100px] right-[-100px] w-96 h-96 bg-indigo-100/80 rounded-full mix-blend-multiply filter blur-3xl opacity-75 pointer-events-none" />
 
       {/* Main Container Wrapper */}
-      <div className="relative w-full max-w-md h-full md:h-[840px] md:w-[385px] bg-white md:rounded-[48px] md:shadow-[0_25px_60px_-15px_rgba(15,23,42,0.15)] md:border-[10px] md:border-slate-900 flex flex-col overflow-hidden transition-all duration-300">
+      <div className="relative w-full max-w-md md:h-[840px] md:w-[385px] bg-white md:rounded-[48px] md:shadow-[0_25px_60px_-15px_rgba(15,23,42,0.15)] md:border-[10px] md:border-slate-900 flex flex-col overflow-hidden transition-all duration-300">
         
         {/* Notch / Dynamic Screen Top Bezels (Removed to prevent overlap with status bar) */}
 
@@ -192,7 +192,7 @@ export function MobileFrame({ children, activeWeatherMode, weatherOption, setWea
           </div>
 
           {/* Core Content Area */}
-          <div className="flex-1 native-app-scroll flex flex-col w-full relative z-10">
+          <div className="flex-1 overflow-y-auto flex flex-col w-full relative z-10">
             {/* Live Animated Weather Sky in the background */}
             <WeatherBackground mode={activeWeatherMode} />
 
