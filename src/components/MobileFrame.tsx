@@ -192,7 +192,7 @@ export function MobileFrame({ children, activeWeatherMode, weatherOption, setWea
           </div>
 
           {/* Core Content Area */}
-          <div className="flex-1 overflow-y-auto flex flex-col w-full relative z-10">
+          <div className="flex-1 native-app-scroll flex flex-col w-full relative z-10">
             {/* Live Animated Weather Sky in the background */}
             <WeatherBackground mode={activeWeatherMode} />
 

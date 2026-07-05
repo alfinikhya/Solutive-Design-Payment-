@@ -24,3 +24,17 @@
 ::-webkit-scrollbar-thumb:hover {
   background: rgba(156, 163, 175, 0.5);
 }
+
+/* Elite native app feel scroll overrides */
+.native-app-scroll {
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch; /* Momentum-based scrolling on iOS devices */
+  overscroll-behavior-y: contain; /* Prevent entire page bouncing */
+  scrollbar-width: none; /* Hide standard Firefox scrollbar */
+  -ms-overflow-style: none; /* Hide IE scrollbar */
+}
+
+.native-app-scroll::-webkit-scrollbar {
+  display: none; /* Hide Chrome/Safari/Edge scrollbar entirely within the phone view */
+}
+
