@@ -1,6 +1,8 @@
 export enum PaymentMethodType {
   BRI = 'BRI',
-  DANA = 'DANA'
+  DANA = 'DANA',
+  GOPAY = 'GOPAY',
+  SEABANK = 'SEABANK'
 }
 
 export interface PaymentMethod {

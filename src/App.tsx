@@ -2,9 +2,9 @@ import * as React from 'react';
 import { MobileFrame } from './components/MobileFrame';
 import { Header } from './components/Header';
 import { PaymentStep1 } from './components/PaymentStep1';
-import { PaymentStep2 } from './components/PaymentStep2';
 import { Toast } from './components/Toast';
-import { PaymentMethodType, ClientInvoice } from './types';
+import { ClientInvoice } from './types';
+import { WeatherMode } from './components/WeatherBackground';
 
 export default function App() {
   // Generate beautiful random invoice ID relative to today's date
@@ -18,16 +18,27 @@ export default function App() {
   };
 
   // State management
-  const [currentStep, setCurrentStep] = React.useState<1 | 2>(1);
-  const [selectedMethod, setSelectedMethod] = React.useState<PaymentMethodType | null>(null);
-  
   const [invoice, setInvoice] = React.useState<ClientInvoice>({
     invoiceId: generateInvoiceId(),
     clientName: 'Nama Customer/Client',
     serviceName: 'Redesain Branding Premium & Landing Page UI/UX',
-    amount: 1500000, // Default IDR amount
+    amount: 150000, // Default IDR amount
     paymentType: 'LUNAS',
   });
+
+  // Weather and Time state simulation
+  const [weatherOption, setWeatherOption] = React.useState<'AUTO' | 'MORNING' | 'AFTERNOON' | 'SUNSET' | 'NIGHT'>('AUTO');
+
+  const getActiveWeatherMode = (): WeatherMode => {
+    if (weatherOption !== 'AUTO') return weatherOption;
+    const hour = new Date().getHours();
+    if (hour >= 5 && hour < 11) return 'MORNING';
+    if (hour >= 11 && hour < 16) return 'AFTERNOON';
+    if (hour >= 16 && hour < 19) return 'SUNSET';
+    return 'NIGHT';
+  };
+
+  const activeWeatherMode = getActiveWeatherMode();
 
   // Toast notifications state
   const [toastMessage, setToastMessage] = React.useState<string>('');
@@ -44,40 +55,24 @@ export default function App() {
     setToastVisible(false);
   };
 
-  // Handle choosing payment
-  const handleSelectMethod = (type: PaymentMethodType) => {
-    setSelectedMethod(type);
-    setCurrentStep(2);
-  };
-
-  // Go back to selection step
-  const handleGoBack = () => {
-    setCurrentStep(1);
-    setSelectedMethod(null);
-  };
-
   return (
-    <MobileFrame>
+    <MobileFrame
+      activeWeatherMode={activeWeatherMode}
+      weatherOption={weatherOption}
+      setWeatherOption={setWeatherOption}
+    >
       {/* Brand Header */}
-      <Header currentStep={currentStep} />
+      <Header currentStep={1} />
 
-      {/* Main interactive screen routes */}
-      {currentStep === 1 ? (
-        <PaymentStep1
-          invoice={invoice}
-          setInvoice={setInvoice}
-          onSelectMethod={handleSelectMethod}
-        />
-      ) : (
-        selectedMethod && (
-          <PaymentStep2
-            methodType={selectedMethod}
-            invoice={invoice}
-            onBack={handleGoBack}
-            triggerToast={triggerToast}
-          />
-        )
-      )}
+      {/* Main interactive screen (fully inline step dropdown) */}
+      <PaymentStep1
+        invoice={invoice}
+        setInvoice={setInvoice}
+        triggerToast={triggerToast}
+        activeWeatherMode={activeWeatherMode}
+        weatherOption={weatherOption}
+        setWeatherOption={setWeatherOption}
+      />
 
       {/* Modern floating mobile toast helper */}
       <Toast

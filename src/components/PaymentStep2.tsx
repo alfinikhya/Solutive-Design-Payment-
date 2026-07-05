@@ -3,11 +3,12 @@ import { motion, AnimatePresence } from 'motion/react';
 import { ChevronLeft, Copy, Check, UploadCloud, ChevronDown, ChevronUp, Image, FileCheck, CheckCircle2, QrCode } from 'lucide-react';
 import { PaymentMethodType, ClientInvoice } from '../types';
 import { gsap } from 'gsap';
+import { TypewriterText } from './TypewriterText';
 
 interface PaymentStep2Props {
   methodType: PaymentMethodType;
   invoice: ClientInvoice;
-  onBack: () => void;
+  onBack?: () => void;
   triggerToast: (msg: string) => void;
 }
 
@@ -103,7 +104,7 @@ export function DigitalRollingNumber({ value }: DigitalRollingNumberProps) {
 
 export function PaymentStep2({ methodType, invoice, onBack, triggerToast }: PaymentStep2Props) {
   const [copied, setCopied] = React.useState(false);
-  const [activeAccordion, setActiveAccordion] = React.useState<string | null>('bri-mbanking');
+  const [activeAccordion, setActiveAccordion] = React.useState<string | null>(null);
   
   // File upload states for receipt proof
   const [receiptFile, setReceiptFile] = React.useState<File | null>(null);
@@ -115,9 +116,25 @@ export function PaymentStep2({ methodType, invoice, onBack, triggerToast }: Paym
   const fileInputRef = React.useRef<HTMLInputElement>(null);
 
   const isBRI = methodType === PaymentMethodType.BRI;
-  const logoText = isBRI ? 'BRI' : 'DANA';
-  const targetNumber = isBRI ? '304301036517539' : '081227122829';
+  const isDANA = methodType === PaymentMethodType.DANA;
+  const isGOPAY = methodType === PaymentMethodType.GOPAY;
+  const isSEABANK = methodType === PaymentMethodType.SEABANK;
+
+  const logoText = isSEABANK ? 'SeaBank' : isBRI ? 'BRI' : isDANA ? 'DANA' : 'GOPAY';
+  const targetNumber = isSEABANK ? '9013 5626 1442' : isBRI ? '304301036517539' : '081227122829';
   const holderName = 'Alfin Ikhyxxl Uxxx';
+
+  React.useEffect(() => {
+    if (isBRI) {
+      setActiveAccordion('bri-mbanking');
+    } else if (isDANA) {
+      setActiveAccordion('dana-app');
+    } else if (isGOPAY) {
+      setActiveAccordion('gopay-app');
+    } else {
+      setActiveAccordion('seabank-app');
+    }
+  }, [methodType]);
 
   const formatRupiah = (num: number) => {
     return new Intl.NumberFormat('id-ID', {
@@ -132,7 +149,15 @@ export function PaymentStep2({ methodType, invoice, onBack, triggerToast }: Paym
   const copyToClipboard = () => {
     navigator.clipboard.writeText(cleanNumber);
     setCopied(true);
-    triggerToast(isBRI ? 'Nomor Rekening berhasil disalin' : 'Nomor DANA berhasil disalin');
+    triggerToast(
+      isBRI 
+        ? 'Nomor Rekening berhasil disalin' 
+        : isDANA 
+        ? 'Nomor DANA berhasil disalin' 
+        : isGOPAY
+        ? 'Nomor GoPay berhasil disalin'
+        : 'Nomor Rekening SeaBank berhasil disalin'
+    );
     setTimeout(() => setCopied(false), 2000);
   };
 
@@ -197,7 +222,7 @@ export function PaymentStep2({ methodType, invoice, onBack, triggerToast }: Paym
 - *No Invoice*: ${invoice.invoiceId}
 - *Paket Layanan*: ${invoice.serviceName}
 - *Tipe Pembayaran*: ${invoice.paymentType === 'DP' ? 'Payment DP (Down Payment)' : 'Payment LUNAS (Lunas/Full)'}
-- *Metode Pembayaran*: ${isBRI ? 'BANK BRI' : 'DANA'}
+- *Metode Pembayaran*: ${isBRI ? 'BANK BRI' : isDANA ? 'DANA' : isGOPAY ? 'GOPAY' : 'SEABANK'}
 - *Total Transfer*: ${formatRupiah(invoice.amount)}
 
 Saya sudah menyalin info rekening dan melakukan transfer terlampir. Terima kasih!`;
@@ -209,22 +234,24 @@ Saya sudah menyalin info rekening dan melakukan transfer terlampir. Terima kasih
   };
 
   return (
-    <div className="w-full bg-slate-50 px-5 py-4 relative pb-10">
+    <div className={onBack ? "w-full bg-slate-50 px-5 py-4 relative pb-10" : "w-full bg-slate-50/40 p-4 relative border-t border-slate-100"}>
       
       {/* Back button and title */}
-      <div className="flex items-center gap-2 mb-4">
-        <button
-          onClick={onBack}
-          className="w-8 h-8 rounded-xl bg-white border border-slate-200 flex items-center justify-center hover:bg-slate-100 transition-colors cursor-pointer"
-          id="btn-back-to-step1"
-        >
-          <ChevronLeft className="w-5 h-5 text-slate-700" />
-        </button>
-        <div className="flex flex-col">
-          <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest leading-none">Kembali</span>
-          <h2 className="text-sm font-extrabold text-slate-800 tracking-tight mt-0.5">Detail Pembayaran {logoText}</h2>
+      {onBack && (
+        <div className="flex items-center gap-2 mb-4">
+          <button
+            onClick={onBack}
+            className="w-8 h-8 rounded-xl bg-white border border-slate-200 flex items-center justify-center hover:bg-slate-100 transition-colors cursor-pointer"
+            id="btn-back-to-step1"
+          >
+            <ChevronLeft className="w-5 h-5 text-slate-700" />
+          </button>
+          <div className="flex flex-col">
+            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest leading-none">Kembali</span>
+            <h2 className="text-sm font-extrabold text-slate-800 tracking-tight mt-0.5">Detail Pembayaran {logoText}</h2>
+          </div>
         </div>
-      </div>
+      )}
 
       {isSuccess ? (
         <motion.div
@@ -275,7 +302,11 @@ Saya sudah menyalin info rekening dan melakukan transfer terlampir. Terima kasih
             className={`w-full rounded-3xl p-6 text-white relative overflow-hidden mb-5 shrink-0 bg-gradient-to-br ${
               isBRI
                 ? 'from-blue-600 via-indigo-600 to-blue-700 shadow-xl shadow-blue-200'
-                : 'from-sky-400 via-blue-500 to-sky-600 shadow-xl shadow-sky-100'
+                : isDANA
+                ? 'from-sky-400 via-blue-500 to-sky-600 shadow-xl shadow-sky-100'
+                : isGOPAY
+                ? 'from-teal-500 via-teal-600 to-emerald-600 shadow-xl shadow-teal-100'
+                : 'from-orange-500 via-orange-600 to-red-500 shadow-xl shadow-orange-100'
             }`}
           >
             {/* White decorative circles with fluid floating animations */}
@@ -326,7 +357,7 @@ Saya sudah menyalin info rekening dan melakukan transfer terlampir. Terima kasih
             <div className="flex items-start justify-between relative z-10 mb-6">
               <div className="flex flex-col">
                 <span className="text-[10px] text-white/80 font-bold uppercase tracking-wider leading-none">
-                  {isBRI ? 'Rekening Transfer BRI' : 'E-Wallet Transfer DANA'}
+                  {isBRI ? 'Rekening Transfer BRI' : isDANA ? 'E-Wallet Transfer DANA' : isGOPAY ? 'E-Wallet Transfer GoPay' : 'Rekening Transfer SeaBank'}
                 </span>
                 <span className="text-[11px] text-white/60 font-semibold mt-1">Solutive Design Studio Payment Agent</span>
               </div>
@@ -335,8 +366,12 @@ Saya sudah menyalin info rekening dan melakukan transfer terlampir. Terima kasih
               <div className="px-3.5 py-1.5 rounded-xl bg-white/20 backdrop-blur-md border border-white/10 flex items-center justify-center shrink-0">
                 {isBRI ? (
                   <span className="text-xs font-black tracking-tighter text-white uppercase leading-none">BANK BRI</span>
-                ) : (
+                ) : isDANA ? (
                   <span className="text-xs font-black tracking-tight text-white italic uppercase leading-none">DANA</span>
+                ) : isGOPAY ? (
+                  <span className="text-xs font-black tracking-wider text-white uppercase leading-none">GOPAY</span>
+                ) : (
+                  <span className="text-xs font-black tracking-wider text-white uppercase leading-none">SEABANK</span>
                 )}
               </div>
             </div>
@@ -345,7 +380,7 @@ Saya sudah menyalin info rekening dan melakukan transfer terlampir. Terima kasih
             <div className="mb-6 relative z-10">
               <div className="flex items-center justify-between gap-2 mb-1.5">
                 <span className="block text-[10px] text-white/60 tracking-widest uppercase">
-                  {isBRI ? 'NOMOR REKENING' : 'NOMOR TELEPON DANA'}
+                  {isBRI ? 'NOMOR REKENING' : isDANA ? 'NOMOR TELEPON DANA' : isGOPAY ? 'NOMOR TELEPON GOPAY' : 'NOMOR REKENING SEABANK'}
                 </span>
                 <div className="flex items-center gap-1.5 font-sans">
                   <span className={`text-[9px] font-extrabold px-1.5 py-0.5 rounded-xs tracking-wider uppercase ${
@@ -361,7 +396,7 @@ Saya sudah menyalin info rekening dan melakukan transfer terlampir. Terima kasih
                 </div>
               </div>
               <div className="flex items-center min-h-[38px]">
-                <DigitalRollingNumber value={isBRI ? '3043 0103 6517 539' : '0812 2712 2829'} />
+                <DigitalRollingNumber value={isBRI ? '3043 0103 6517 539' : isSEABANK ? '9013 5626 1442' : '0812 2712 2829'} />
               </div>
             </div>
 
@@ -380,7 +415,7 @@ Saya sudah menyalin info rekening dan melakukan transfer terlampir. Terima kasih
               <div>
                 <span className="text-white/75 block text-[9px] uppercase font-bold tracking-wide leading-none mb-1">JUMLAH TRANSFER</span>
                 <span className="font-mono text-base font-extrabold text-white tracking-tight">
-                  {formatRupiah(invoice.amount)}
+                  <TypewriterText text={formatRupiah(invoice.amount)} />
                 </span>
               </div>
               <div className="flex items-center gap-1.5 text-white/80 shrink-0">
@@ -405,7 +440,11 @@ Saya sudah menyalin info rekening dan melakukan transfer terlampir. Terima kasih
               className={`w-full font-bold text-xs py-3.5 rounded-2xl shadow-xl flex items-center justify-center gap-2 cursor-pointer transition-all duration-200 select-none ${
                 isBRI
                   ? 'bg-slate-900 hover:bg-slate-800 text-white shadow-slate-900/10 active:scale-98'
-                  : 'bg-sky-500 hover:bg-sky-600 text-white shadow-sky-500/10 active:scale-98'
+                  : isDANA
+                  ? 'bg-sky-500 hover:bg-sky-600 text-white shadow-sky-500/10 active:scale-98'
+                  : isGOPAY
+                  ? 'bg-teal-600 hover:bg-teal-700 text-white shadow-teal-600/10 active:scale-98'
+                  : 'bg-orange-600 hover:bg-orange-700 text-white shadow-orange-600/10 active:scale-98'
               }`}
               id="btn-copy-account"
             >
@@ -417,7 +456,7 @@ Saya sudah menyalin info rekening dan melakukan transfer terlampir. Terima kasih
               ) : (
                 <>
                   <Copy className="w-4 h-4" />
-                  {isBRI ? 'Salin Nomor Rekening' : 'Salin Nomor DANA'}
+                  {isBRI ? 'Salin Nomor Rekening' : isDANA ? 'Salin Nomor DANA' : isGOPAY ? 'Salin Nomor GoPay' : 'Salin Nomor Rekening SeaBank'}
                 </>
               )}
             </button>
@@ -426,7 +465,7 @@ Saya sudah menyalin info rekening dan melakukan transfer terlampir. Terima kasih
           {/* Real-world Instructions Accordion */}
           <div className="w-full bg-white rounded-2xl border border-slate-200/80 mb-5 p-2 flex flex-col">
             <span className="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2 px-3 pt-2">
-              PANDUAN PEMBAYARAN ({isBRI ? 'BRI' : 'DANA'})
+              PANDUAN PEMBAYARAN ({isBRI ? 'BRI' : isDANA ? 'DANA' : isGOPAY ? 'GOPAY' : 'SEABANK'})
             </span>
 
             {isBRI ? (
@@ -490,7 +529,7 @@ Saya sudah menyalin info rekening dan melakukan transfer terlampir. Terima kasih
                   </AnimatePresence>
                 </div>
               </>
-            ) : (
+            ) : isDANA ? (
               <>
                 {/* Dana App to Dana */}
                 <div className="border-b border-slate-100 last:border-b-0">
@@ -548,6 +587,130 @@ Saya sudah menyalin info rekening dan melakukan transfer terlampir. Terima kasih
                             <span className="text-[9px] font-bold text-blue-600 font-mono tracking-widest">QRIS DANA</span>
                           </div>
                         </div>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </div>
+              </>
+            ) : isGOPAY ? (
+              <>
+                {/* GoPay App to GoPay */}
+                <div className="border-b border-slate-100 last:border-b-0">
+                  <button
+                    onClick={() => toggleAccordion('gopay-app')}
+                    className="w-full px-3 py-2.5 flex items-center justify-between text-left text-xs font-bold text-slate-700 hover:bg-slate-50/50 rounded-xl transition-all"
+                  >
+                    <span>1. Kirim Sesama E-Wallet GoPay</span>
+                    {activeAccordion === 'gopay-app' ? <ChevronUp className="w-4 h-4 text-slate-400" /> : <ChevronDown className="w-4 h-4 text-slate-400" />}
+                  </button>
+                  <AnimatePresence>
+                    {activeAccordion === 'gopay-app' && (
+                      <motion.div
+                        initial={{ height: 0, opacity: 0 }}
+                        animate={{ height: 'auto', opacity: 1 }}
+                        exit={{ height: 0, opacity: 0 }}
+                        className="overflow-hidden"
+                      >
+                        <ol className="list-decimal pl-7 pr-3 pb-3 text-[11px] text-slate-500 leading-relaxed flex flex-col gap-1.5">
+                          <li>Buka aplikasi <strong>GoPay</strong> atau <strong>Gojek</strong> di smartphone Anda.</li>
+                          <li>Pilih menu <strong>Transfer</strong> atau <strong>Bayar / Pay</strong>.</li>
+                          <li>Pilih <strong>Kirim ke Teman / Nomor HP</strong>.</li>
+                          <li>Ketik nomor telepon Solutive GoPay: <code className="bg-slate-100 text-slate-800 px-1 py-0.5 rounded font-mono font-bold">081227122829</code>.</li>
+                          <li>Tentukan nominal transfer <strong>{formatRupiah(invoice.amount)}</strong>.</li>
+                          <li>Konfirmasi penerima adalah <strong>{holderName}</strong>, lalu masukkan PIN GoPay Anda.</li>
+                        </ol>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </div>
+
+                {/* Transfer via QRIS / Scan */}
+                <div className="border-b border-slate-100 last:border-b-0">
+                  <button
+                    onClick={() => toggleAccordion('gopay-qris')}
+                    className="w-full px-3 py-2.5 flex items-center justify-between text-left text-xs font-bold text-slate-700 hover:bg-slate-50/50 rounded-xl transition-all"
+                  >
+                    <span>2. Kirim via QRIS / Scan Barcode</span>
+                    {activeAccordion === 'gopay-qris' ? <ChevronUp className="w-4 h-4 text-slate-400" /> : <ChevronDown className="w-4 h-4 text-slate-400" />}
+                  </button>
+                  <AnimatePresence>
+                    {activeAccordion === 'gopay-qris' && (
+                      <motion.div
+                        initial={{ height: 0, opacity: 0 }}
+                        animate={{ height: 'auto', opacity: 1 }}
+                        exit={{ height: 0, opacity: 0 }}
+                        className="overflow-hidden"
+                      >
+                        <div className="px-3 pb-3 flex flex-col items-center gap-3">
+                          <p className="text-[11px] text-slate-500 text-center leading-relaxed">
+                            Simpan nomor telepon, atau gunakan scan barcode digital dari layanan dompet elektronik lain mana saja ke nomor terdaftar.
+                          </p>
+                          <div className="p-2 border border-slate-200 bg-white rounded-xl shadow-xs flex flex-col items-center gap-1.5 w-32 h-32 justify-center">
+                            <QrCode className="w-20 h-20 text-slate-800 stroke-[1.5px]" />
+                            <span className="text-[9px] font-bold text-teal-600 font-mono tracking-widest">QRIS GOPAY</span>
+                          </div>
+                        </div>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </div>
+              </>
+            ) : (
+              <>
+                {/* SeaBank App to SeaBank */}
+                <div className="border-b border-slate-100 last:border-b-0">
+                  <button
+                    onClick={() => toggleAccordion('seabank-app')}
+                    className="w-full px-3 py-2.5 flex items-center justify-between text-left text-xs font-bold text-slate-700 hover:bg-slate-50/50 rounded-xl transition-all"
+                  >
+                    <span>1. Transfer sesama Rekening SeaBank</span>
+                    {activeAccordion === 'seabank-app' ? <ChevronUp className="w-4 h-4 text-slate-400" /> : <ChevronDown className="w-4 h-4 text-slate-400" />}
+                  </button>
+                  <AnimatePresence>
+                    {activeAccordion === 'seabank-app' && (
+                      <motion.div
+                        initial={{ height: 0, opacity: 0 }}
+                        animate={{ height: 'auto', opacity: 1 }}
+                        exit={{ height: 0, opacity: 0 }}
+                        className="overflow-hidden"
+                      >
+                        <ol className="list-decimal pl-7 pr-3 pb-3 text-[11px] text-slate-500 leading-relaxed flex flex-col gap-1.5">
+                          <li>Buka aplikasi <strong>SeaBank</strong> di smartphone Anda.</li>
+                          <li>Pilih menu <strong>Transfer</strong> kemudian pilih <strong>Sesama SeaBank</strong>.</li>
+                          <li>Masukkan nomor rekening SeaBank Solutive: <code className="bg-slate-100 text-slate-800 px-1 py-0.5 rounded font-mono font-bold">901356261442</code>.</li>
+                          <li>Masukkan nominal transfer sebesar <strong>{formatRupiah(invoice.amount)}</strong>.</li>
+                          <li>Pastikan nama penerima adalah <strong>{holderName}</strong>, lalu konfirmasi dengan PIN Anda.</li>
+                        </ol>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </div>
+
+                {/* Bank Transfer to SeaBank */}
+                <div className="border-b border-slate-100 last:border-b-0">
+                  <button
+                    onClick={() => toggleAccordion('seabank-other')}
+                    className="w-full px-3 py-2.5 flex items-center justify-between text-left text-xs font-bold text-slate-700 hover:bg-slate-50/50 rounded-xl transition-all"
+                  >
+                    <span>2. Transfer dari Bank Lain ke SeaBank</span>
+                    {activeAccordion === 'seabank-other' ? <ChevronUp className="w-4 h-4 text-slate-400" /> : <ChevronDown className="w-4 h-4 text-slate-400" />}
+                  </button>
+                  <AnimatePresence>
+                    {activeAccordion === 'seabank-other' && (
+                      <motion.div
+                        initial={{ height: 0, opacity: 0 }}
+                        animate={{ height: 'auto', opacity: 1 }}
+                        exit={{ height: 0, opacity: 0 }}
+                        className="overflow-hidden"
+                      >
+                        <ol className="list-decimal pl-7 pr-3 pb-3 text-[11px] text-slate-500 leading-relaxed flex flex-col gap-1.5">
+                          <li>Buka aplikasi mobile banking bank Anda (BCA, Mandiri, BNI, BRI, dll.).</li>
+                          <li>Pilih menu <strong>Transfer ke Bank Lain</strong>.</li>
+                          <li>Pilih Bank Penerima: <strong>SeaBank</strong> (atau <strong>PT Bank Kesejahteraan Ekonomi</strong>).</li>
+                          <li>Masukkan nomor rekening tujuan: <code className="bg-slate-100 text-slate-800 px-1 py-0.5 rounded font-mono font-bold">901356261442</code>.</li>
+                          <li>Masukkan nominal transfer sebesar <strong>{formatRupiah(invoice.amount)}</strong>.</li>
+                          <li>Pastikan nama penerima tertera <strong>{holderName}</strong>, lalu selesaikan transaksi.</li>
+                        </ol>
                       </motion.div>
                     )}
                   </AnimatePresence>
